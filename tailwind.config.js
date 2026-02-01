@@ -4,18 +4,24 @@ import forms from '@tailwindcss/forms';
 /** @type {import('tailwindcss').Config} */
 export default {
     content: [
-        './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
-        './storage/framework/views/*.php',
-        './resources/views/**/*.blade.php',
+        "./resources/**/*.blade.php",
+        "./resources/**/*.js",
+        "./resources/**/*.vue",
     ],
-
+    safelist: [
+        'bg-green-500',
+        'bg-red-500',
+        'text-blue-600',
+        'text-white',
+        'px-2',
+        'py-1',
+        'rounded',
+        'w-[80px]',
+        'text-xs',
+    ],
     theme: {
-        extend: {
-            fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
-            },
-        },
+        extend: {},
     },
+    plugins: [],
+}
 
-    plugins: [forms],
-};
