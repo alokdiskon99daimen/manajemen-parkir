@@ -9,6 +9,8 @@ use App\Http\Controllers\AreaParkirController;
 use App\Http\Controllers\TipeKendaraanController;
 use App\Http\Controllers\DataKendaraanController;
 
+use App\Http\Controllers\TrackAreaParkirController;
+
 
 /*
 |-------------------------------------------------------------------------- 
@@ -40,6 +42,12 @@ Route::middleware('auth')->group(function () {
         Route::resource('area-parkir', AreaParkirController::class);
         Route::resource('tipe-kendaraan', TipeKendaraanController::class);
         Route::resource('data-kendaraan', DataKendaraanController::class);
+    });
+
+    Route::get('/track-area-parkir', [TrackAreaParkirController::class, 'index'])->name('track-area-parkir');
+
+    Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function () {
+        Route::resource('transaksi', TransaksiController::class);
     });
 });
 

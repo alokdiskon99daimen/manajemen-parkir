@@ -6,6 +6,7 @@ use App\Models\AreaParkir;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AreaParkirController extends Controller
 {
@@ -49,12 +50,24 @@ class AreaParkirController extends Controller
 
     public function store(Request $request)
     {
-        AreaParkir::create([
-            'nama_area' => $request->nama_area,
-            'lokasi'    => $request->lokasi,
-            'kapasitas' => $request->kapasitas,
-            'created_by'=> Auth::user()->name ?? 'system',
-        ]);
+        DB::transaction(function () use ($request) {
+
+            // insert area parkir
+            $area = AreaParkir::create([
+                'nama_area'  => $request->nama_area,
+                'lokasi'     => $request->lokasi,
+                'kapasitas'  => $request->kapasitas,
+                'created_by' => Auth::id(), // INT lebih konsisten
+            ]);
+
+            // auto insert detail tracking
+            DB::table('tb_area_parkir_detail')->insert([
+                'area_parkir_id' => $area->id,
+                'terisi'         => 0,
+                'created_at'     => now(),
+                'created_by'     => Auth::id(),
+            ]);
+        });
 
         return redirect()->route('area-parkir.index');
     }
@@ -67,10 +80,10 @@ class AreaParkirController extends Controller
     public function update(Request $request, AreaParkir $area)
     {
         $area->update([
-            'nama_area' => $request->nama_area,
-            'lokasi'    => $request->lokasi,
-            'kapasitas' => $request->kapasitas,
-            'updated_by'=> Auth::user()->name ?? 'system',
+            'nama_area'  => $request->nama_area,
+            'lokasi'     => $request->lokasi,
+            'kapasitas'  => $request->kapasitas,
+            'updated_by' => Auth::id(),
         ]);
 
         return redirect()->route('area-parkir.index');
@@ -78,11 +91,14 @@ class AreaParkirController extends Controller
 
     public function destroy(AreaParkir $area)
     {
-        $area->update([
-            'deleted_by' => Auth::user()->name ?? 'system'
-        ]);
+        DB::transaction(function () use ($area) {
 
-        $area->delete();
+            $area->update([
+                'deleted_by' => Auth::id()
+            ]);
+
+            $area->delete();
+        });
 
         return redirect()->route('area-parkir.index');
     }

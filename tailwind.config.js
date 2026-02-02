@@ -11,6 +11,8 @@ export default {
     safelist: [
         'bg-green-500',
         'bg-red-500',
+        'bg-yellow-500',
+        
         'text-blue-600',
         'text-white',
         'px-2',

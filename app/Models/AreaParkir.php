@@ -19,4 +19,9 @@ class AreaParkir extends Model
         'updated_by',
         'deleted_by',
     ];
+
+    public function detail()
+    {
+        return $this->hasOne(AreaParkirDetail::class, 'area_parkir_id');
+    }
 }
