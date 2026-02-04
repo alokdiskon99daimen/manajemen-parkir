@@ -12,7 +12,7 @@ class DataKendaraan extends Model
     protected $table = 'tb_data_kendaraan';
 
     protected $fillable = [
-        'tipe_kendaraan',
+        'id_tipe_kendaraan',
         'plat_nomor',
         'warna',
         'pemilik',
@@ -21,4 +21,12 @@ class DataKendaraan extends Model
         'updated_by',
         'deleted_by',
     ];
+
+    /* =====================
+     | RELATIONSHIP
+     ===================== */
+    public function tipeKendaraan()
+    {
+        return $this->belongsTo(TipeKendaraan::class, 'id_tipe_kendaraan');
+    }
 }

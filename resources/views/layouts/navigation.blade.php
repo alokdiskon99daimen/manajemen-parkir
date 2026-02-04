@@ -43,6 +43,8 @@
                             <x-dropdown-link :href="route('area-parkir.index')">Area Parkir</x-dropdown-link>
                             <x-dropdown-link :href="route('tipe-kendaraan.index')">Tipe Kendaraan</x-dropdown-link>
                             <x-dropdown-link :href="route('data-kendaraan.index')">Data Kendaraan</x-dropdown-link>
+                            <x-dropdown-link :href="route('membership-tier.index')">Membership Tier</x-dropdown-link>
+                            <x-dropdown-link :href="route('membership.index')">Membership</x-dropdown-link>
                         </x-slot>
                     </x-dropdown>
                     @endrole
@@ -50,6 +52,12 @@
                     <x-nav-link :href="route('track-area-parkir')" :active="request()->routeIs('track-area-parkir')">
                         {{ __('Track Area') }}
                     </x-nav-link>
+
+                    @role('Petugas Parkir')
+                    <x-nav-link :href="route('transaksi.index')" :active="request()->routeIs('transaksi.index')">
+                        {{ __('Transaksi') }}
+                    </x-nav-link>
+                    @endrole
                 </div>
             </div>
 

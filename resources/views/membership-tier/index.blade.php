@@ -1,11 +1,10 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Tipe Kendaraan') }}
+            {{ __('Membership Tier') }}
         </h2>
     </x-slot>
 
-    {{-- CSS khusus halaman --}}
     <style>
         #tarifTable.dataTable thead th {
             @apply text-sm font-semibold text-gray-700 bg-gray-50 border-b border-gray-200;
@@ -28,9 +27,9 @@
 
     <div class="py-8">
         <div class="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow">
-            <a href="{{ route('tipe-kendaraan.create') }}"
+            <a href="{{ route('membership-tier.create') }}"
                class="mb-4 inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-                Tambah Tipe Kendaraan
+                Tambah Tier
             </a>
 
             <div class="overflow-x-auto">
@@ -38,8 +37,10 @@
                     <thead>
                         <tr class="text-left">
                             <th>No</th>
-                            <th>Tipe Kendaraan</th>
-                            <th>Kapasitas</th>
+                            <th>Tier</th>
+                            <th>Harga / Bulan</th>
+                            <th>Diskon (%)</th>
+                            <th>Free Entry</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -48,28 +49,31 @@
         </div>
     </div>
 
-    @push('scripts')
-    <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        $('#tarifTable').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: "{{ route('tipe-kendaraan.index') }}",
-            order: [[1, 'asc']],
-            autoWidth: false,
-            columnDefs: [
-                { targets: 0, width: '50px', className: 'text-center' },
-                { targets: 2, type: 'string'},
-                { targets: 3, width: '120px', className: 'text-center' },
-            ],
-            columns: [
-                { data: 'DT_RowIndex', orderable:false, searchable:false },
-                { data: 'tipe_kendaraan', name: 'tipe_kendaraan' },
-                { data: 'kapasitas', name: 'kapasitas' },
-                { data: 'aksi', orderable:false, searchable:false },
-            ]
-        });
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    $('#tarifTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: "{{ route('membership-tier.index') }}",
+        order: [[1, 'asc']],
+        autoWidth: false,
+        columnDefs: [
+            { targets: 0, width: '50px', className: 'text-center' },
+            { targets: 3, type: 'string' },
+            { targets: 4, type: 'string' },
+            { targets: 5, width: '120px', className: 'text-center' },
+        ],
+        columns: [
+            { data: 'DT_RowIndex', orderable:false, searchable:false },
+            { data: 'tier', name: 'tier' },
+            { data: 'harga', name: 'harga' },
+            { data: 'diskon', name: 'diskon' },
+            { data: 'free_entry', name: 'free_entry' },
+            { data: 'aksi', orderable:false, searchable:false },
+        ]
     });
-    </script>
-    @endpush
+});
+</script>
+@endpush
 </x-app-layout>

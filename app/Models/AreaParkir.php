@@ -20,8 +20,8 @@ class AreaParkir extends Model
         'deleted_by',
     ];
 
-    public function detail()
+    public function details()
     {
-        return $this->hasOne(AreaParkirDetail::class, 'area_parkir_id');
+        return $this->hasMany(AreaParkirDetail::class, 'area_parkir_id');
     }
 }

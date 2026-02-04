@@ -22,6 +22,18 @@
                     @enderror
                 </div>
 
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">
+                        Kapasitas
+                    </label>
+                    <input type="number" name="kapasitas"
+                           value="{{ old('kapasitas') }}"
+                           class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    @error('kapasitas')
+                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <div class="flex justify-end gap-2">
                     <a href="{{ route('tipe-kendaraan.index') }}"
                        class="px-4 py-2 rounded border">

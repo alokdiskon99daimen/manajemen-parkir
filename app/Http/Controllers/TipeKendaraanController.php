@@ -12,7 +12,7 @@ class TipeKendaraanController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = TipeKendaraan::select('id', 'tipe_kendaraan');
+            $data = TipeKendaraan::select('id', 'tipe_kendaraan', 'kapasitas');
 
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -49,10 +49,12 @@ class TipeKendaraanController extends Controller
     {
         $request->validate([
             'tipe_kendaraan' => 'required',
+            'kapasitas' => 'required',
         ]);
 
         TipeKendaraan::create([
             'tipe_kendaraan' => $request->tipe_kendaraan,
+            'kapasitas' => $request->kapasitas,
             'created_by' => Auth::user()->name ?? 'system',
         ]);
 
@@ -68,6 +70,7 @@ class TipeKendaraanController extends Controller
     {
         $tipeKendaraan->update([
             'tipe_kendaraan' => $request->tipe_kendaraan,
+            'kapasitas' => $request->kapasitas,
             'updated_by' => Auth::user()->name ?? 'system',
         ]);
 

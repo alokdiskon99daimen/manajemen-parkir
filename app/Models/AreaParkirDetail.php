@@ -13,6 +13,8 @@ class AreaParkirDetail extends Model
 
     protected $fillable = [
         'area_parkir_id',
+        'tipe_kendaraan',
+        'kapasitas',
         'terisi',
         'created_by',
         'updated_by',

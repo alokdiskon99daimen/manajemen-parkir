@@ -28,14 +28,26 @@
                            class="w-full border border-gray-300 px-3 py-2 rounded">
                 </div>
 
-                <div>
+                <div id="detailWrapper">
                     <label class="block text-sm font-medium text-gray-700">
-                        Kapasitas
+                        Tipe Kendaraan
                     </label>
-                    <input type="number" name="kapasitas"
-                           value="{{ old('kapasitas') }}"
-                           class="w-full border border-gray-300 px-3 py-2 rounded">
+                    <div class="flex gap-2 mb-2">
+                        <input name="tipe_kendaraan[]" placeholder="Motor / Mobil"
+                            class="w-1/2 border px-3 py-2 rounded">
+                        <input name="kapasitas[]" type="number" placeholder="Kapasitas"
+                            class="w-1/2 border px-3 py-2 rounded">
+                    </div>
                 </div>
+
+                <button type="button" onclick="addDetail()"
+                        class="text-sm text-blue-600">+ Tambah Tipe</button>
+
+                        @if($errors->has('tipe_kendaraan'))
+                            <p class="text-sm text-red-600">
+                                {{ $errors->first('tipe_kendaraan') }}
+                            </p>
+                        @endif
 
                 <div class="flex justify-end gap-2">
                     <a href="{{ route('area-parkir.index') }}"
@@ -52,3 +64,24 @@
         </div>
     </div>
 </x-app-layout>
+
+<script>
+function addDetail(){
+    document.getElementById('detailWrapper').insertAdjacentHTML('beforeend', `
+        <div class="flex gap-2 mb-2 detail-row">
+            <input name="tipe_kendaraan[]" class="w-1/2 border px-3 py-2 rounded">
+            <input name="kapasitas[]" type="number"
+                   class="w-1/2 border px-3 py-2 rounded">
+            <button type="button"
+                    onclick="removeRow(this)"
+                    class="text-red-600 text-sm">
+                ✕
+            </button>
+        </div>
+    `);
+}
+
+function removeRow(btn){
+    btn.closest('.detail-row').remove();
+}
+</script>
