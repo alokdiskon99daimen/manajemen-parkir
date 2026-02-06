@@ -18,7 +18,7 @@
 
                     <select name="id_tipe_kendaraan"
                             class="w-full border px-3 py-2 rounded">
-                        <option value="">-- Pilih Tipe Kendaraan --</option>
+                        <option value="">-- Pilih Tipe --</option>
 
                         @foreach ($tipeKendaraan as $tipe)
                             <option value="{{ $tipe->id }}"

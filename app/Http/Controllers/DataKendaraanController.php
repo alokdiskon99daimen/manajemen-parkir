@@ -29,8 +29,8 @@ class DataKendaraanController extends Controller
                 })
                 ->addColumn('aktif', function ($row) {
                     return $row->aktif
-                        ? '<span class="px-2 py-1 text-xs bg-green-500 text-green-700 rounded">Aktif</span>'
-                        : '<span class="px-2 py-1 text-xs bg-red-500 text-red-700 rounded">Nonaktif</span>';
+                        ? '<span class="px-2 py-1 text-xs bg-green-500 rounded">Aktif</span>'
+                        : '<span class="px-2 py-1 text-xs bg-red-500 rounded">Nonaktif</span>';
                 })
                 ->addColumn('aksi', function ($row) {
                     return '

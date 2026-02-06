@@ -18,4 +18,9 @@ class Tarif extends Model
         'updated_by',
         'deleted_by',
     ];
+
+    public function tipeKendaraan()
+    {
+        return $this->belongsTo(TipeKendaraan::class, 'id_tipe_kendaraan');
+    }
 }

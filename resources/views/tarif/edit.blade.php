@@ -17,9 +17,23 @@
                     <label class="block text-sm font-medium text-gray-700">
                         Tipe Kendaraan
                     </label>
-                    <input type="text" name="tipe_kendaraan"
-                           value="{{ old('tipe_kendaraan', $tarif->tipe_kendaraan) }}"
-                           class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+                    <select name="id_tipe_kendaraan"
+                            class="w-full border px-3 py-2 rounded"
+                            required>
+                        <option value="">-- Pilih Tipe --</option>
+
+                        @foreach ($tipeKendaraan as $tipe)
+                            <option value="{{ $tipe->id }}"
+                                {{ old('id_tipe_kendaraan', $tarif->id_tipe_kendaraan) == $tipe->id ? 'selected' : '' }}>
+                                {{ $tipe->tipe_kendaraan }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    @error('id_tipe_kendaraan')
+                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div>

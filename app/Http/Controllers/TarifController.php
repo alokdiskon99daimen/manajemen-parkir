@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tarif;
+use App\Models\TipeKendaraan;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Auth;
@@ -12,13 +13,30 @@ class TarifController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = Tarif::select('id', 'tipe_kendaraan', 'tarif_per_jam');
+
+            $data = Tarif::with('tipeKendaraan')
+                ->select('tb_tarif.id', 'id_tipe_kendaraan', 'tarif_per_jam');
 
             return DataTables::of($data)
                 ->addIndexColumn()
+
+                ->addColumn('tipe_kendaraan', function ($row) {
+                    return $row->tipeKendaraan->tipe_kendaraan ?? '-';
+                })
+                ->filterColumn('tipe_kendaraan', function ($query, $keyword) {
+                    $query->whereHas('tipeKendaraan', function ($q) use ($keyword) {
+                        $q->where('tipe_kendaraan', 'like', "%{$keyword}%");
+                    });
+                })
+                ->orderColumn('tipe_kendaraan', function ($query, $order) {
+                    $query->join('tb_tipe_kendaraan', 'tb_tarif.id_tipe_kendaraan', '=', 'tb_tipe_kendaraan.id')
+                        ->orderBy('tb_tipe_kendaraan.tipe_kendaraan', $order);
+                })
+
                 ->editColumn('tarif_per_jam', function ($row) {
                     return 'Rp ' . number_format($row->tarif_per_jam, 0, ',', '.');
                 })
+
                 ->addColumn('aksi', function ($row) {
                     return '
                         <div class="flex justify-center gap-2">
@@ -36,6 +54,7 @@ class TarifController extends Controller
                         </div>
                     ';
                 })
+
                 ->rawColumns(['aksi'])
                 ->make(true);
         }
@@ -45,18 +64,19 @@ class TarifController extends Controller
 
     public function create()
     {
-        return view('tarif.create');
+        $tipeKendaraan = TipeKendaraan::all();
+        return view('tarif.create', compact('tipeKendaraan'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'tipe_kendaraan' => 'required',
+            'id_tipe_kendaraan' => 'required|exists:tb_tipe_kendaraan,id',
             'tarif_per_jam' => 'required|numeric',
         ]);
 
         Tarif::create([
-            'tipe_kendaraan' => $request->tipe_kendaraan,
+            'id_tipe_kendaraan' => $request->id_tipe_kendaraan,
             'tarif_per_jam' => $request->tarif_per_jam,
             'created_by' => Auth::user()->name ?? 'system',
         ]);
@@ -66,13 +86,19 @@ class TarifController extends Controller
 
     public function edit(Tarif $tarif)
     {
-        return view('tarif.edit', compact('tarif'));
+        $tipeKendaraan = TipeKendaraan::all();
+        return view('tarif.edit', compact('tarif', 'tipeKendaraan'));
     }
 
     public function update(Request $request, Tarif $tarif)
     {
+        $request->validate([
+            'id_tipe_kendaraan' => 'required|exists:tb_tipe_kendaraan,id',
+            'tarif_per_jam' => 'required|numeric',
+        ]);
+
         $tarif->update([
-            'tipe_kendaraan' => $request->tipe_kendaraan,
+            'id_tipe_kendaraan' => $request->id_tipe_kendaraan,
             'tarif_per_jam' => $request->tarif_per_jam,
             'updated_by' => Auth::user()->name ?? 'system',
         ]);
