@@ -27,7 +27,7 @@
                                     text-gray-500 hover:text-gray-700 hover:border-gray-300
                                     focus:outline-none transition"
                             >
-                                <span>MASTER</span>
+                                <span>Master</span>
 
                                 <svg class="ml-1 h-4 w-4 fill-current" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd"
@@ -52,6 +52,31 @@
                     <x-nav-link :href="route('track-area-parkir')" :active="request()->routeIs('track-area-parkir')">
                         {{ __('Track Area') }}
                     </x-nav-link>
+
+                    <x-dropdown align="left" width="56">
+                        <x-slot name="trigger">
+                            <button
+                                class="inline-flex items-center px-1 py-6 border-b-2 border-transparent
+                                    text-sm font-medium leading-5
+                                    text-gray-500 hover:text-gray-700 hover:border-gray-300
+                                    focus:outline-none transition"
+                            >
+                                <span>Transaksi</span>
+
+                                <svg class="ml-1 h-4 w-4 fill-current" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </x-slot>
+
+                        <x-slot name="content">
+                            <x-dropdown-link :href="route('transaksi.index')">Transaksi</x-dropdown-link>
+                            <x-dropdown-link :href="route('transaksi.aktif')">Transaksi Aktif</x-dropdown-link>
+                            <x-dropdown-link :href="route('transaksi.riwayat')">Riwayat Transaksi</x-dropdown-link>
+                        </x-slot>
+                    </x-dropdown>
 
                     @role('Petugas Parkir')
                     <x-nav-link :href="route('transaksi.index')" :active="request()->routeIs('transaksi.index')">

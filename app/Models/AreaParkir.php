@@ -24,4 +24,14 @@ class AreaParkir extends Model
     {
         return $this->hasMany(AreaParkirDetail::class, 'area_parkir_id');
     }
+
+    public function tipeKendaraan()
+    {
+        return $this->belongsToMany(
+            TipeKendaraan::class,
+            'tb_area_tipe_kendaraan',
+            'id_area',
+            'id_tipe_kendaraan'
+        );
+    }
 }

@@ -12,7 +12,7 @@ class Tarif extends Model
     protected $table = 'tb_tarif';
 
     protected $fillable = [
-        'tipe_kendaraan',
+        'id_tipe_kendaraan',
         'tarif_per_jam',
         'created_by',
         'updated_by',

@@ -8,7 +8,7 @@ class TrackAreaParkirController extends Controller
 {
     public function index()
     {
-        $areas = AreaParkir::with('details')->get()->map(function ($area) {
+        $areas = AreaParkir::with('details.tipeKendaraan')->get()->map(function ($area) {
 
             $details = $area->details->map(function ($d) {
 
@@ -28,8 +28,10 @@ class TrackAreaParkirController extends Controller
                     $badge  = 'bg-green-500';
                 }
 
+                $tipeKendaraan = $d->tipeKendaraan ? $d->tipeKendaraan->tipe_kendaraan : 'Unknown';
+
                 return [
-                    'tipe_kendaraan' => $d->tipe_kendaraan,
+                    'tipe_kendaraan' => $tipeKendaraan,
                     'kapasitas'      => $kapasitas,
                     'terisi'         => $terisi,
                     'tersisa'        => $tersisa,

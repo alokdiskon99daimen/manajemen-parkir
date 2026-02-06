@@ -29,4 +29,14 @@ class DataKendaraan extends Model
     {
         return $this->belongsTo(TipeKendaraan::class, 'id_tipe_kendaraan');
     }
+
+    public function memberships()
+    {
+        return $this->belongsToMany(
+            Membership::class,
+            'tb_membership_kendaraan',
+            'id_data_kendaraan',
+            'id_membership'
+        );
+    }
 }

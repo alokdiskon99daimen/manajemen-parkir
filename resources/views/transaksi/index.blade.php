@@ -14,7 +14,7 @@
                 @csrf
 
                 {{-- PLAT NOMOR --}}
-                <div class="mb-3">
+                <div class="mb-3 relative">
                     <label class="block text-sm font-medium">Plat Nomor</label>
                     <input
                         type="text"
@@ -26,7 +26,9 @@
                     >
 
                     {{-- DROPDOWN HASIL --}}
-                    <div id="platDropdown" class="border bg-white hidden absolute z-10 w-full"></div>
+                    <div id="platDropdown"
+                        class="absolute z-10 w-full border bg-white rounded shadow-md hidden max-h-56 overflow-y-auto">
+                    </div>
                 </div>
 
                 {{-- DATA KENDARAAN --}}
@@ -59,6 +61,19 @@
                         <label class="text-sm">Pemilik</label>
                         <input type="text" name="pemilik" id="pemilik" class="w-full border rounded px-2 py-1">
                     </div>
+
+                    <div>
+                        <label class="text-sm">Area Parkir</label>
+                        <select
+                            name="id_area"
+                            id="id_area"
+                            class="w-full border rounded px-2 py-1"
+                            required
+                            disabled
+                        >
+                            <option value="">-- Pilih Area Parkir --</option>
+                        </select>
+                    </div>
                 </div>
 
                 <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded">
@@ -70,6 +85,24 @@
         {{-- TIKET KELUAR --}}
         <div class="bg-white p-6 rounded shadow">
             <h2 class="text-lg font-semibold mb-4">🎫 Tiket Keluar</h2>
+
+            {{-- ERROR GLOBAL --}}
+            @if (session('error'))
+                <div class="mb-4 p-3 rounded bg-red-100 text-red-700 border border-red-300">
+                    ⚠️ {{ session('error') }}
+                </div>
+            @endif
+
+            {{-- ERROR VALIDASI --}}
+            @if ($errors->any())
+                <div class="mb-4 p-3 rounded bg-red-100 text-red-700 border border-red-300">
+                    <ul class="list-disc pl-5">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
             <form method="POST" action="{{ route('transaksi.keluar') }}">
                 @csrf
@@ -121,7 +154,8 @@ platInput.addEventListener('keyup', async function () {
 
         div.onclick = () => {
             platInput.value = item.plat_nomor;
-            document.getElementById('id_tipe_kendaraan').value = item.id_tipe_kendaraan;
+            tipeSelect.value = String(item.id_tipe_kendaraan);
+            loadAreaByTipe(String(item.id_tipe_kendaraan));           
             document.getElementById('warna').value = item.warna;
             document.getElementById('pemilik').value = item.pemilik;
             dropdown.classList.add('hidden');
@@ -132,5 +166,55 @@ platInput.addEventListener('keyup', async function () {
 
     dropdown.classList.remove('hidden');
 });
-</script>
 
+document.addEventListener('click', function (e) {
+    if (
+        !platInput.contains(e.target) &&
+        !dropdown.contains(e.target)
+    ) {
+        dropdown.classList.add('hidden');
+    }
+});
+
+
+const tipeSelect = document.getElementById('id_tipe_kendaraan');
+const areaSelect = document.getElementById('id_area');
+
+async function loadAreaByTipe(tipeId) {
+    areaSelect.innerHTML = '<option value="">-- Pilih Area Parkir --</option>';
+
+    if (!tipeId) {
+        areaSelect.disabled = true;
+        return;
+    }
+
+    const res = await fetch(`/area/by-tipe/${tipeId}`);
+    const data = await res.json();
+
+    if (data.length === 0) {
+        areaSelect.disabled = true;
+        return;
+    }
+
+    data.forEach(area => {
+        const opt = document.createElement('option');
+        opt.value = area.id;
+        opt.textContent = `${area.nama_area} (Tersisa: ${area.tersisa})`;
+
+        if (area.tersisa === 0) {
+            opt.disabled = true;
+            opt.style.color = 'red';
+            opt.textContent += ' - Penuh';
+        }
+
+        areaSelect.appendChild(opt);
+    });
+
+    areaSelect.disabled = false;
+}
+
+
+tipeSelect.addEventListener('change', function () {
+    loadAreaByTipe(this.value);
+});
+</script>

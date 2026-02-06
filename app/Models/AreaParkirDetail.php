@@ -13,7 +13,7 @@ class AreaParkirDetail extends Model
 
     protected $fillable = [
         'area_parkir_id',
-        'tipe_kendaraan',
+        'id_tipe_kendaraan',
         'kapasitas',
         'terisi',
         'created_by',
@@ -24,6 +24,11 @@ class AreaParkirDetail extends Model
     public function area()
     {
         return $this->belongsTo(AreaParkir::class, 'area_parkir_id');
+    }
+
+    public function tipeKendaraan()
+    {
+        return $this->belongsTo(TipeKendaraan::class, 'id_tipe_kendaraan');
     }
 }
 

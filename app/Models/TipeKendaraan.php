@@ -18,4 +18,14 @@ class TipeKendaraan extends Model
         'updated_by',
         'deleted_by',
     ];
+
+    public function areaParkir()
+    {
+        return $this->belongsToMany(
+            AreaParkir::class,
+            'tb_area_tipe_kendaraan',
+            'id_tipe_kendaraan',
+            'id_area'
+        );
+    }
 }

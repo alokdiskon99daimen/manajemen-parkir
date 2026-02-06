@@ -16,6 +16,7 @@ class Transaksi extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
+        'kode_tiket',
         'id_data_kendaraan',
         'waktu_masuk',
         'waktu_keluar',

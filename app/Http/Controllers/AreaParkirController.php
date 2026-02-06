@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AreaParkir;
 use App\Models\AreaParkirDetail;
+use App\Models\TipeKendaraan;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +16,7 @@ class AreaParkirController extends Controller
     {
         if ($request->ajax()) {
 
-            $data = AreaParkir::with('details')
+            $data = AreaParkir::with('details.tipeKendaraan')
                 ->select('id','nama_area','lokasi');
 
             return DataTables::of($data)
@@ -24,6 +25,13 @@ class AreaParkirController extends Controller
                 ->addColumn('kapasitas', function ($row) {
                     // total kapasitas = sum detail
                     return $row->details->sum('kapasitas');
+                })
+
+                ->addColumn('tipe_kendaraan', function ($row) {
+                    // ambil nama tipe kendaraan semua detail
+                    return $row->details->map(function($d) {
+                        return $d->tipeKendaraan ? $d->tipeKendaraan->tipe_kendaraan : 'Unknown';
+                    })->implode(', ');
                 })
 
                 ->addColumn('aksi', function ($row) {
@@ -53,7 +61,9 @@ class AreaParkirController extends Controller
 
     public function create()
     {
-        return view('area-parkir.create');
+        // kirim semua tipe kendaraan untuk dropdown
+        $tipeKendaraan = TipeKendaraan::all();
+        return view('area-parkir.create', compact('tipeKendaraan'));
     }
 
     public function store(Request $request)
@@ -61,13 +71,9 @@ class AreaParkirController extends Controller
         $request->validate([
             'nama_area' => 'required',
             'lokasi'    => 'required',
+            'tipe_kendaraan' => 'required|array|min:1',
+            'kapasitas' => 'required|array|min:1',
         ]);
-
-        if (!$request->tipe_kendaraan || count(array_filter($request->tipe_kendaraan)) == 0) {
-            return back()
-                ->withErrors(['tipe_kendaraan' => 'Minimal 1 tipe kendaraan'])
-                ->withInput();
-        }
 
         DB::transaction(function () use ($request) {
 
@@ -77,12 +83,12 @@ class AreaParkirController extends Controller
                 'created_by' => Auth::id(),
             ]);
 
-            foreach ($request->tipe_kendaraan as $i => $tipe) {
-                if (!$tipe) continue;
+            foreach ($request->tipe_kendaraan as $i => $idTipe) {
+                if (!$idTipe) continue;
 
                 AreaParkirDetail::create([
                     'area_parkir_id' => $area->id,
-                    'tipe_kendaraan' => $tipe,
+                    'id_tipe_kendaraan' => $idTipe,
                     'kapasitas'      => $request->kapasitas[$i],
                     'terisi'         => 0,
                     'created_by'     => Auth::id(),
@@ -96,7 +102,8 @@ class AreaParkirController extends Controller
     public function edit(AreaParkir $area_parkir)
     {
         $area_parkir->load('details');
-        return view('area-parkir.edit', ['area' => $area_parkir]);
+        $tipeKendaraan = TipeKendaraan::all();
+        return view('area-parkir.edit', ['area' => $area_parkir, 'tipeKendaraan' => $tipeKendaraan]);
     }
 
     public function update(Request $request, AreaParkir $area_parkir)
@@ -104,13 +111,9 @@ class AreaParkirController extends Controller
         $request->validate([
             'nama_area' => 'required',
             'lokasi'    => 'required',
+            'tipe_kendaraan' => 'required|array|min:1',
+            'kapasitas' => 'required|array|min:1',
         ]);
-
-        if (!$request->tipe_kendaraan || count(array_filter($request->tipe_kendaraan)) == 0) {
-            return back()
-                ->withErrors(['tipe_kendaraan' => 'Minimal 1 tipe kendaraan'])
-                ->withInput();
-        }
 
         DB::transaction(function () use ($request, $area_parkir) {
 
@@ -120,18 +123,38 @@ class AreaParkirController extends Controller
                 'updated_by' => Auth::id(),
             ]);
 
-            AreaParkirDetail::where('area_parkir_id', $area_parkir->id)->delete();
+            $existingDetails = $area_parkir->details->keyBy('id_tipe_kendaraan');
 
-            foreach ($request->tipe_kendaraan as $i => $tipe) {
-                if (!$tipe) continue;
+            foreach ($request->tipe_kendaraan as $i => $idTipe) {
+                $kapasitas = $request->kapasitas[$i] ?? 0;
 
-                AreaParkirDetail::create([
-                    'area_parkir_id' => $area_parkir->id,
-                    'tipe_kendaraan' => $tipe,
-                    'kapasitas'      => $request->kapasitas[$i],
-                    'terisi'         => 0,
-                    'created_by'     => Auth::id(),
-                ]);
+                if ($existingDetails->has($idTipe)) {
+                    // update kapasitas jika ada
+                    $detail = $existingDetails->get($idTipe);
+                    $detail->update([
+                        'kapasitas' => $kapasitas,
+                        // terisi tetap sama
+                        'updated_by' => Auth::id(),
+                    ]);
+                    $existingDetails->forget($idTipe); // tandai sudah diupdate
+                } else {
+                    // buat baru jika belum ada
+                    AreaParkirDetail::create([
+                        'area_parkir_id' => $area_parkir->id,
+                        'id_tipe_kendaraan' => $idTipe,
+                        'kapasitas'      => $kapasitas,
+                        'terisi'         => 0,
+                        'created_by'     => Auth::id(),
+                    ]);
+                }
+            }
+
+            // hapus detail yang sudah tidak ada di request, tapi pastikan terisi 0
+            foreach ($existingDetails as $detail) {
+                if ($detail->terisi > 0) {
+                    abort(403, 'Tidak boleh menghapus tipe kendaraan yang sedang terisi');
+                }
+                $detail->delete();
             }
         });
 
@@ -146,19 +169,13 @@ class AreaParkirController extends Controller
 
             foreach ($existingDetails as $detail) {
                 if ($detail->terisi > 0) {
-                    // pastikan masih ada di request
-                    if (!in_array($detail->tipe_kendaraan, $request->tipe_kendaraan)) {
-                        abort(403, 'Tidak boleh menghapus tipe kendaraan yang sedang terisi');
-                    }
+                    abort(403, 'Tidak boleh menghapus tipe kendaraan yang sedang terisi');
                 }
             }
 
             AreaParkirDetail::where('area_parkir_id', $area->id)->delete();
 
-            $area->update([
-                'deleted_by' => Auth::id()
-            ]);
-
+            $area->update(['deleted_by' => Auth::id()]);
             $area->delete();
         });
 

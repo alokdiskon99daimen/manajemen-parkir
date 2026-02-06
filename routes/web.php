@@ -49,6 +49,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('data-kendaraan', DataKendaraanController::class);
         Route::resource('membership', MembershipController::class);
         Route::resource('membership-tier', MembershipTierController::class);
+        Route::get('/ajax/kendaraan', [MembershipController::class, 'searchKendaraan'])->name('ajax.kendaraan');
 
         Route::middleware(['auth'])->group(function () {
             Route::get('/database', [DatabaseBackupController::class, 'index'])
@@ -67,8 +68,15 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['auth', RoleMiddleware::class . ':Petugas Parkir'])->group(function () {
         Route::get('/transaksi', [TransaksiController::class, 'index'])->name('transaksi.index');
         Route::post('/transaksi/masuk', [TransaksiController::class, 'masuk'])->name('transaksi.masuk');
+        Route::get('/transaksi/tiket-masuk/{id}', [TransaksiController::class, 'tiketMasuk'])->name('transaksi.tiket-masuk');
         Route::post('/transaksi/keluar', [TransaksiController::class, 'keluar'])->name('transaksi.keluar');
+        Route::get('/transaksi/tiket-keluar/{id}', [TransaksiController::class, 'tiketKeluar'])->name('transaksi.tiket-keluar');
         Route::get('/kendaraan/search', [DataKendaraanController::class, 'search']);
+        Route::get('/area/by-tipe/{id}', [TransaksiController::class, 'getAreaByTipe']);
+        Route::get('/transaksi/aktif', [TransaksiController::class, 'aktif'])->name('transaksi.aktif');
+        Route::get('/transaksi/riwayat', [TransaksiController::class, 'riwayat'])->name('transaksi.riwayat');
+        Route::get('/transaksi/struk/{id}', [TransaksiController::class, 'struk'])->name('transaksi.struk');
+
     });
 });
 
