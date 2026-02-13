@@ -7,7 +7,7 @@
 
     <div class="py-8">
         <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow">
-            <form method="POST"
+            <form method="POST" onsubmit="return confirm('Apakah anda yakin?')"
                   action="{{ route('membership-tier.update', $membershipTier->id) }}"
                   class="space-y-4">
                 @csrf
@@ -22,21 +22,21 @@
 
                 <div>
                     <label class="block text-sm font-medium">Harga / Bulan</label>
-                    <input type="number" name="harga"
+                    <input type="number" name="harga" onkeyup="if(this.value < 0) this.value = '';"
                         value="{{ $membershipTier->harga }}"
                         class="w-full border px-3 py-2 rounded">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium">Diskon (%)</label>
-                    <input type="number" name="diskon"
+                    <input type="number" name="diskon" onkeyup="if(this.value < 0) this.value = '';"
                            value="{{ $membershipTier->diskon }}"
                            class="w-full border px-3 py-2 rounded">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium">Free Entry</label>
-                    <input type="number" name="free_entry"
+                    <input type="number" name="free_entry" onkeyup="if(this.value < 0) this.value = '';"
                            value="{{ $membershipTier->free_entry }}"
                            class="w-full border px-3 py-2 rounded">
                 </div>

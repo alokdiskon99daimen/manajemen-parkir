@@ -23,6 +23,8 @@ class Transaksi extends Model
         'id_tarif',
         'durasi_jam',
         'biaya',
+        'diskon_member',
+        'diskon_manual',
         'biaya_total',
         'status',
         'id_user',
@@ -87,5 +89,16 @@ class Transaksi extends Model
     public function metodePembayaran()
     {
         return $this->belongsTo(MetodePembayaran::class, 'id_metode_pembayaran');
+    }
+    public function tipeKendaraan()
+    {
+        return $this->hasOneThrough(
+            TipeKendaraan::class,
+            DataKendaraan::class,
+            'id',                 // data_kendaraan.id
+            'id',                 // tipe_kendaraan.id
+            'id_data_kendaraan',  // transaksi
+            'id_tipe_kendaraan'   // data_kendaraan
+        );
     }
 }

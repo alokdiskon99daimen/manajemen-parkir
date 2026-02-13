@@ -12,7 +12,7 @@ export default {
         'bg-green-500',
         'bg-red-500',
         'bg-yellow-500',
-        
+        'text-purple-600',
         'text-blue-600',
         'text-white',
         'px-2',

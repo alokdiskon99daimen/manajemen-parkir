@@ -37,10 +37,12 @@
                     <thead>
                         <tr class="text-left">
                             <th>No</th>
+                            <th>Kode Tiket</th>
                             <th>Plat</th>
                             <th>Tipe</th>
-                            <th>Durasi</th>
-                            <th>Total</th>
+                            <th>Waktu Masuk</th>
+                            <th>Waktu Keluar</th>
+                            <th>Status</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -60,16 +62,18 @@
             autoWidth: false,
             columnDefs: [
                 { targets: 0, width: '50px', className: 'text-center'},
-                { targets: 3, type: 'string'},
                 { targets: 4, type: 'string'},
-                { targets: 5, width: '100px'},
+                { targets: 5, type: 'string'},
+                { targets: 6, width: '100px'},
             ],
             columns: [
                 { data: 'DT_RowIndex', orderable:false, searchable:false },
+                { data: 'kode_tiket', name: 'kode_tiket' },
                 { data: 'plat', name: 'plat' },
                 { data: 'tipe', name: 'tipe' },
-                { data: 'durasi', name: 'durasi' },
-                { data: 'biaya_total', name: 'biaya_total' },
+                { data: 'waktu_masuk', name: 'waktu_masuk' },
+                { data: 'waktu_keluar', name: 'waktu_keluar' },
+                { data: 'status_badge', orderable:false, searchable:false },
                 { data: 'aksi', orderable:false, searchable:false },
             ]
         });

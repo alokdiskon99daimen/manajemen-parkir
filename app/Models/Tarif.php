@@ -13,6 +13,7 @@ class Tarif extends Model
 
     protected $fillable = [
         'id_tipe_kendaraan',
+        'durasi_mulai',
         'tarif_per_jam',
         'created_by',
         'updated_by',

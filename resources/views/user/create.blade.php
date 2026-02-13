@@ -7,7 +7,7 @@
 
     <div class="py-8">
         <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow">
-            <form method="POST" action="{{ route('user.store') }}" class="space-y-4">
+            <form method="POST" action="{{ route('user.store') }}" class="space-y-4" onsubmit="return confirm('Apakah anda yakin?')">
                 @csrf
 
                 <div>
@@ -39,14 +39,17 @@
                     @enderror
                 </div>
 
-                <div>
+                <div x-data="{ show: false }" class="relative">
                     <label class="block text-sm font-medium text-gray-700">
                         Password
                     </label>
 
-                    <input type="password" name="password"
+                    <input type="password" name="password" x-bind:type="show ? 'text' : 'password'"
                         class="w-full border border-gray-300 px-3 py-2 rounded
                                 focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+                    <button type="button"@click="show = !show" class="absolute right-3 top-7 text-gray-500 hover:text-gray-700">
+                    <i class="fa-solid" :class="show ? 'fa-eye-slash' : 'fa-eye'"></i></button>
 
                     @error('password')
                         <p class="text-red-600 text-sm mt-1">

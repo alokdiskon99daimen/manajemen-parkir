@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use App\Helpers\LogActivityHelper;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -26,8 +27,13 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
         $request->session()->regenerate();
+
+        $user = Auth::user();
+
+        LogActivityHelper::log(
+            "[LOGIN] User login | Nama: {$user->name} | Email: {$user->email}"
+        );
 
         return redirect()->intended(RouteServiceProvider::HOME);
     }
@@ -37,12 +43,19 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $user = Auth::user();
+
+        if ($user) {
+            LogActivityHelper::log(
+                "[LOGOUT] User logout | Nama: {$user->name} | Email: {$user->email}"
+            );
+        }
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect('/login');
     }
 }

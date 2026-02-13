@@ -37,11 +37,13 @@
                     <thead>
                         <tr class="text-left">
                             <th>No</th>
+                            <th>Kode Tiket</th>
                             <th>Plat</th>
                             <th>Tipe</th>
                             <th>Area</th>
                             <th>Waktu Masuk</th>
                             <th>Status</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                 </table>
@@ -60,15 +62,19 @@
             autoWidth: false,
             columnDefs: [
                 { targets: 0, width: '50px', className: 'text-center' },
-                { targets: 5, className: 'text-center' },
+                { targets: 5, type: 'string' },
+                { targets: 6, width: '100px' },
+                { targets: 7, width: '80px' },
             ],
             columns: [
                 { data: 'DT_RowIndex', orderable:false, searchable:false },
+                { data: 'kode_tiket', name: 'kode_tiket' },
                 { data: 'plat', name: 'plat' },
                 { data: 'tipe', name: 'tipe' },
                 { data: 'area', name: 'area' },
                 { data: 'waktu_masuk', name: 'waktu_masuk' },
                 { data: 'status_badge', orderable:false, searchable:false },
+                { data: 'aksi', orderable:false, searchable:false },
             ]
         });
     });

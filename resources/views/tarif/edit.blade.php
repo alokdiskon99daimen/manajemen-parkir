@@ -7,7 +7,12 @@
 
     <div class="py-8">
         <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow">
-            <form method="POST"
+        @if(session('error'))
+            <div class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                {{ session('error') }}
+            </div>
+        @endif
+            <form method="POST" onsubmit="return confirm('Apakah anda yakin?')"
                   action="{{ route('tarif.update', $tarif->id) }}"
                   class="space-y-4">
                 @csrf
@@ -38,9 +43,22 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700">
+                        Durasi Mulai (Jam)
+                    </label>
+                    <input type="number" name="durasi_mulai" min="0" onkeyup="if(this.value < 0) this.value='';"
+                        value="{{ old('durasi_mulai', $tarif->durasi_mulai) }}"
+                        class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required>
+                    @error('durasi_mulai')
+                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">
                         Tarif Per Jam
                     </label>
-                    <input type="number" name="tarif_per_jam"
+                    <input type="number" name="tarif_per_jam" onkeyup="if(this.value < 0) this.value = '';"
                            value="{{ old('tarif_per_jam', $tarif->tarif_per_jam) }}"
                            class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>

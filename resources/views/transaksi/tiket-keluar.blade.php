@@ -27,8 +27,8 @@
     <hr>
 
     <p>Plat : {{ $transaksi->dataKendaraan->plat_nomor }}</p>
-    <p>Jam Masuk : {{ $transaksi->waktu_masuk->format('H:i') }}</p>
-    <p>Jam Keluar : {{ $transaksi->waktu_keluar->format('H:i') }}</p>
+    <p>Waktu Masuk : {{ $transaksi->waktu_masuk->format('d M Y H:i') }}</p>
+    <p>Waktu Keluar : {{ $transaksi->waktu_keluar->format('d M Y H:i') }}</p>
 
     @php
         $menit = $transaksi->waktu_masuk->diffInMinutes($transaksi->waktu_keluar);
@@ -41,16 +41,40 @@
     <hr>
 
     <p>Tarif Dasar : Rp {{ number_format($transaksi->biaya,0,',','.') }}</p>
-    <p>Diskon Member :
-        - Rp {{ number_format($transaksi->biaya - $transaksi->biaya_total,0,',','.') }}
-    </p>
+    @php
+        $diskonMember = $transaksi->diskon_member ?? 0;
+        $diskonManual = $transaksi->diskon_manual ?? 0;
+        $totalDiskonPersen = min($diskonMember + $diskonManual, 100);
+        $diskonRupiah = ($totalDiskonPersen / 100) * $transaksi->biaya;
+    @endphp
+
+    @if($memberInfo && $memberInfo['is_free_entry'])
+        <p><strong>FREE ENTRY TERPAKAI</strong></p>
+        <p>Sisa Free Entry : {{ $memberInfo['sisa_free_entry'] }}</p>
+    @elseif($totalDiskonPersen > 0)
+        @if($diskonMember > 0)
+            <p>Diskon Member ({{ $diskonMember }}%) : 
+                - Rp {{ number_format($diskonRupiah * ($diskonMember / $totalDiskonPersen),0,',','.') }}
+            </p>
+        @endif
+
+        @if($diskonManual > 0)
+            <p>Diskon Manual ({{ $diskonManual }}%) : 
+                - Rp {{ number_format($diskonRupiah * ($diskonManual / $totalDiskonPersen),0,',','.') }}</p>
+        @endif
+
+        <p>Total Diskon ({{ $totalDiskonPersen }}%) :
+            - Rp {{ number_format($diskonRupiah,0,',','.') }}
+        </p>
+    @endif
+
 
     <hr>
 
     <p><strong>TOTAL BAYAR</strong></p>
     <p><strong>Rp {{ number_format($transaksi->biaya_total,0,',','.') }}</strong></p>
 
-    <p>Metode : Tunai</p>
+    <p>Metode : {{ $transaksi->metodePembayaran->metode_pembayaran ?? '-' }}</p>
     <p>Tanggal : {{ now()->format('d-m-Y') }}</p>
     <p>Operator : {{ $transaksi->user->name ?? '-' }}</p>
 
@@ -61,11 +85,17 @@
 
     <br>
 
-    {{-- QR CODE (SOLUSI 3 - TANPA PACKAGE) --}}
+    @php
+        $qrData = json_encode([
+            'kode_tiket' => $transaksi->kode_tiket,
+            'plat_nomor' => $transaksi->dataKendaraan->plat_nomor,
+        ]);
+    @endphp
+
     <img
-        src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($transaksi->kode_tiket) }}"
+        src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($qrData) }}"
         alt="QR Code"
-    >
+    />
 </div>
 
 </body>

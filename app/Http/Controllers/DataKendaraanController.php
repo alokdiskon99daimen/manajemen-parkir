@@ -42,7 +42,7 @@ class DataKendaraanController extends Controller
                             <form action="'.route('data-kendaraan.destroy',$row->id).'" method="POST">
                                 '.csrf_field().method_field('DELETE').'
                                 <button class="text-red-600 hover:underline text-sm"
-                                        onclick="return confirm(\'Yakin?\')">
+                                        onclick="return confirm(\'Yakin ingin menghapus data ini??\')">
                                     Hapus
                                 </button>
                             </form>

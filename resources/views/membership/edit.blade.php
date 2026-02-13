@@ -7,7 +7,7 @@
 
     <div class="py-8">
         <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow">
-            <form method="POST"
+            <form method="POST" onsubmit="return confirm('Apakah anda yakin?')"
                   action="{{ route('membership.update', $membership->id) }}"
                   class="space-y-4">
                 @csrf
@@ -43,7 +43,7 @@
                     <label class="block text-sm font-medium text-gray-700">
                         Loyalty Point
                     </label>
-                    <input type="number" name="loyalty_point"
+                    <input type="number" name="loyalty_point" onkeyup="if(this.value < 0) this.value = '';"
                            value="{{ old('loyalty_point', $membership->loyalty_point) }}"
                            class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
@@ -71,7 +71,7 @@
                     <input type="text"
                         id="search-kendaraan"
                         placeholder="Cari plat nomor..."
-                        class="w-full border px-3 py-2 rounded">
+                        class="w-full border px-3 py-2 rounded plat-nomor">
 
                     <div id="kendaraan-result"
                         class="border mt-1 rounded bg-white hidden"></div>
@@ -174,4 +174,81 @@ function renderKendaraan() {
         container.appendChild(row);
     });
 }
+
+document.querySelectorAll('.plat-nomor').forEach(input => {
+    input.addEventListener('input', function (e) {
+
+        let value = e.target.value.toUpperCase();
+
+        // hapus karakter selain huruf & angka
+        value = value.replace(/[^A-Z0-9]/g, '');
+
+        let hurufDepan = '';
+        let angka = '';
+        let hurufBelakang = '';
+
+        for (let char of value) {
+
+            // 🚫 karakter pertama WAJIB huruf
+            if (hurufDepan.length === 0 && !/[A-Z]/.test(char)) {
+                continue;
+            }
+
+            // isi huruf depan (max 2)
+            if (hurufDepan.length < 2 && /[A-Z]/.test(char) && angka.length === 0) {
+                hurufDepan += char;
+                continue;
+            }
+
+            // isi angka (max 4)
+            if (angka.length < 4 && /[0-9]/.test(char)) {
+                angka += char;
+                continue;
+            }
+
+            // isi huruf belakang (max 3)
+            if (hurufBelakang.length < 3 && /[A-Z]/.test(char) && angka.length > 0) {
+                hurufBelakang += char;
+            }
+        }
+
+        let result = hurufDepan;
+
+        if (angka.length > 0) {
+            result += ' ' + angka;
+        }
+
+        if (hurufBelakang.length > 0) {
+            result += ' ' + hurufBelakang;
+        }
+
+        e.target.value = result.trim();
+    });
+});
+
+function isPlatValid(value) {
+    // regex HURUF → ANGKA → HURUF (akhir opsional)
+    const regex = /^[A-Z]{1,2}\s[0-9]{1,4}\s[A-Z]{1,3}$/;
+    return regex.test(value.trim());
+}
+
+document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', function (e) {
+
+        const platInput = form.querySelector('.plat-nomor');
+        if (!platInput) return;
+
+        const value = platInput.value.trim();
+        if (value === '') return;
+        if (!isPlatValid(value)) {
+            e.preventDefault();
+            alert(
+                'Format plat nomor tidak valid.\n\n' +
+                'Gunakan format:\n' +
+                'B 1234 XYZ\n' 
+            );
+            platInput.focus();
+        }
+    });
+});
 </script>

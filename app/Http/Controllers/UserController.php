@@ -29,7 +29,7 @@ class UserController extends Controller
                             <form action="'.route('user.destroy',$row->id).'" method="POST">
                                 '.csrf_field().method_field('DELETE').'
                                 <button class="text-red-600 hover:underline"
-                                    onclick="return confirm(\'Hapus user?\')">
+                                    onclick="return confirm(\'Yakin ingin menghapus data ini??\')">
                                     Hapus
                                 </button>
                             </form>

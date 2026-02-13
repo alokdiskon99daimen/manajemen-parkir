@@ -28,4 +28,14 @@ class TipeKendaraan extends Model
             'id_area'
         );
     }
+    
+    public function tarif()
+    {
+        return $this->hasOne(Tarif::class, 'id_tipe_kendaraan');
+    }
+
+    public function areaDetails()
+    {
+        return $this->hasMany(AreaParkirDetail::class, 'id_tipe_kendaraan');
+    }
 }

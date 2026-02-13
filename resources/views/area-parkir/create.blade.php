@@ -7,7 +7,7 @@
 
     <div class="py-8">
         <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow">
-            <form method="POST" action="{{ route('area-parkir.store') }}" class="space-y-4">
+            <form method="POST" action="{{ route('area-parkir.store') }}" class="space-y-4" onsubmit="return confirm('Apakah anda yakin?')">
                 @csrf
 
                 <div>
@@ -35,7 +35,7 @@
                                 </option>
                             @endforeach
                         </select>
-                        <input name="kapasitas[]" type="number" placeholder="Kapasitas"
+                        <input name="kapasitas[]" type="number" placeholder="Kapasitas" onkeyup="if(this.value < 0) this.value = '';"
                                class="w-1/2 border px-3 py-2 rounded">
                     </div>
                 </div>
@@ -73,14 +73,35 @@ function addDetail(){
             <select name="tipe_kendaraan[]" class="w-1/2 border px-3 py-2 rounded">
                 <option value="">-- Pilih Tipe --</option>${options}
             </select>
-            <input name="kapasitas[]" type="number" placeholder="Kapasitas"
+            <input name="kapasitas[]" type="number" placeholder="Kapasitas" onkeyup="if(this.value < 0) this.value = '';"
                    class="w-1/2 border px-3 py-2 rounded">
             <button type="button" onclick="removeRow(this)" class="text-red-600 text-sm">✕</button>
         </div>
     `);
+
+    
 }
 
 function removeRow(btn){
     btn.closest('.detail-row').remove();
+}
+
+function attachKapasitasValidation() {
+    document.querySelectorAll('.kapasitas-input').forEach(input => {
+
+        // Blok tanda minus
+        input.addEventListener('keydown', function(e){
+            if(e.key === '-' || e.key === 'e') { // blok minus & e (scientific notation)
+                e.preventDefault();
+            }
+        });
+
+        // Reset kalau nilai < 0
+        input.addEventListener('input', function(e){
+            if(this.value < 0){
+                this.value = 0;
+            }
+        });
+    });
 }
 </script>

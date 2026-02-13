@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use App\Helpers\LogActivityHelper;
 
 class LoginRequest extends FormRequest
 {
@@ -43,6 +44,10 @@ class LoginRequest extends FormRequest
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
+
+            LogActivityHelper::log(
+                '[LOGIN FAILED] Gagal login | Email: ' . $this->input('email')
+            );
 
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),

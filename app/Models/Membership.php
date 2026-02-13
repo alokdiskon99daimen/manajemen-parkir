@@ -17,12 +17,18 @@ class Membership extends Model
         'nama_lengkap',
         'membership_tier_id',
         'loyalty_point',
+        'free_entry_quota',
         'last_renewal',
         'expired',
         'aktif',
         'created_by',
         'updated_by',
         'deleted_by',
+    ];
+
+    protected $casts = [
+        'last_renewal' => 'datetime',
+        'expired' => 'datetime',
     ];
 
     public function tier()

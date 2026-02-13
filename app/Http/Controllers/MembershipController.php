@@ -22,7 +22,8 @@ class MembershipController extends Controller
                     'membership_tier_id',
                     'loyalty_point',
                     'expired',
-                    'aktif'
+                    'free_entry_quota as free_entry',
+                    'aktif',
                 );
 
             return DataTables::of($data)
@@ -30,6 +31,10 @@ class MembershipController extends Controller
                 ->addColumn('tier', function ($row) {
                     return $row->tier->tier ?? '-';
                 })
+            ->editColumn('expired', function ($row) {
+                return $row->expired
+                    ? $row->expired->format('d-m-Y H:i') : '-';
+            })
                 ->editColumn('aktif', function ($row) {
                     return $row->aktif
                         ? '<span class="px-2 py-1 text-xs bg-green-500 rounded">Aktif</span>'
@@ -38,6 +43,16 @@ class MembershipController extends Controller
                 ->addColumn('aksi', function ($row) {
                     return '
                         <div class="flex justify-center gap-2">
+                            <button
+                                onclick="openKendaraanModal('.$row->id.')"
+                                class="text-purple-600 hover:underline text-sm">
+                                Kendaraan
+                            </button>
+                            <button
+                                onclick="openRedeemModal('.$row->id.', '.$row->loyalty_point.')"
+                                class="text-green-600 hover:underline text-sm">
+                                Tukar
+                            </button>
                             <a href="'.route('membership.edit',$row->id).'"
                             class="text-blue-600 hover:underline text-sm">
                                 Edit
@@ -45,7 +60,7 @@ class MembershipController extends Controller
                             <form action="'.route('membership.destroy',$row->id).'" method="POST">
                                 '.csrf_field().method_field('DELETE').'
                                 <button class="text-red-600 hover:underline text-sm"
-                                        onclick="return confirm(\'Yakin?\')">
+                                        onclick="return confirm(\'YYakin ingin menghapus data ini??\')">
                                     Hapus
                                 </button>
                             </form>
@@ -154,5 +169,68 @@ class MembershipController extends Controller
                 ];
             })
         );
+    }
+
+    public function redeemPoint(Request $request, Membership $membership)
+    {
+        $request->validate([
+            'qty' => 'required|integer|min:1',
+        ]);
+
+        // 🔧 aturan penukaran
+        $POINT_PER_ENTRY = 10; // 10 point = 1 free entry
+
+        $qty        = (int) $request->qty;
+        $needPoint = $qty * $POINT_PER_ENTRY;
+
+        // refresh biar ambil data terbaru
+        $membership->refresh();
+
+        if ($membership->loyalty_point < $needPoint) {
+            return response()->json([
+                'message' => 'Loyalty point tidak mencukupi'
+            ], 422);
+        }
+
+        DB::transaction(function () use ($membership, $needPoint, $qty) {
+            // kurangi point
+            $membership->loyalty_point -= $needPoint;
+
+            // tambah free entry
+            $membership->free_entry_quota += $qty;
+
+            $membership->updated_by = auth()->id();
+            $membership->save();
+        });
+
+        return response()->json([
+            'message' => 'Berhasil menukar loyalty point',
+            'data' => [
+                'loyalty_point' => $membership->loyalty_point,
+                'free_entry'    => $membership->free_entry_quota,
+            ]
+        ]);
+    }
+
+    public function kendaraanDatatable(Membership $membership, Request $request)
+    {
+        $data = $membership->kendaraan()
+            ->join(
+                'tb_tipe_kendaraan',
+                'tb_tipe_kendaraan.id',
+                '=',
+                'tb_data_kendaraan.id_tipe_kendaraan'
+            )
+            ->select([
+                'tb_data_kendaraan.id',
+                'tb_data_kendaraan.plat_nomor',
+                'tb_tipe_kendaraan.tipe_kendaraan',
+                'tb_data_kendaraan.warna',
+                'tb_data_kendaraan.pemilik',
+            ]);
+
+        return DataTables::of($data)
+            ->addIndexColumn()
+            ->make(true);
     }
 }

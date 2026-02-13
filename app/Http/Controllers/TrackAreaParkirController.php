@@ -6,9 +6,9 @@ use App\Models\AreaParkir;
 
 class TrackAreaParkirController extends Controller
 {
-    public function index()
+    private function buildAreaData()
     {
-        $areas = AreaParkir::with('details.tipeKendaraan')->get()->map(function ($area) {
+        return AreaParkir::with('details.tipeKendaraan')->get()->map(function ($area) {
 
             $details = $area->details->map(function ($d) {
 
@@ -16,27 +16,25 @@ class TrackAreaParkirController extends Controller
                 $terisi    = $d->terisi ?? 0;
                 $tersisa   = max($kapasitas - $terisi, 0);
 
-                // kondisi per tipe kendaraan
                 if ($terisi >= $kapasitas) {
                     $kondisi = 'Full';
-                    $badge  = 'bg-red-500';
+                    $badge   = 'bg-red-500';
                 } elseif ($terisi >= ($kapasitas * 0.9)) {
                     $kondisi = '90% Terpakai';
-                    $badge  = 'bg-yellow-500';
+                    $badge   = 'bg-yellow-500';
                 } else {
                     $kondisi = 'Tersedia';
-                    $badge  = 'bg-green-500';
+                    $badge   = 'bg-green-500';
                 }
 
-                $tipeKendaraan = $d->tipeKendaraan ? $d->tipeKendaraan->tipe_kendaraan : 'Unknown';
-
                 return [
-                    'tipe_kendaraan' => $tipeKendaraan,
+                    'tipe_kendaraan' => $d->tipeKendaraan->tipe_kendaraan ?? 'Unknown',
                     'kapasitas'      => $kapasitas,
                     'terisi'         => $terisi,
                     'tersisa'        => $tersisa,
                     'kondisi'        => $kondisi,
                     'badge'          => $badge,
+                    'persentase_terisi' => $terisi / $kapasitas * 100,
                 ];
             });
 
@@ -46,7 +44,22 @@ class TrackAreaParkirController extends Controller
                 'details'   => $details,
             ];
         });
+    }
 
+    public function index()
+    {
+        $areas = $this->buildAreaData();
         return view('track-area-parkir.index', compact('areas'));
+    }
+
+    public function monitoring()
+    {
+        $areas = $this->buildAreaData();
+        return view('track-area-parkir.monitoring', compact('areas'));
+    }
+
+    public function data()
+    {
+        return response()->json($this->buildAreaData());
     }
 }

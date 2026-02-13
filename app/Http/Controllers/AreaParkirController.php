@@ -17,7 +17,7 @@ class AreaParkirController extends Controller
         if ($request->ajax()) {
 
             $data = AreaParkir::with('details.tipeKendaraan')
-                ->select('id','nama_area','lokasi');
+                ->select('id','kode_area','nama_area','lokasi');
 
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -44,7 +44,7 @@ class AreaParkirController extends Controller
                             <form action="'.route('area-parkir.destroy',$row->id).'" method="POST">
                                 '.csrf_field().method_field('DELETE').'
                                 <button class="text-red-600 hover:underline text-sm"
-                                        onclick="return confirm(\'Yakin?\')">
+                                        onclick="return confirm(\'Yakin ingin menghapus data ini??\')">
                                     Hapus
                                 </button>
                             </form>
@@ -81,6 +81,10 @@ class AreaParkirController extends Controller
                 'nama_area'  => $request->nama_area,
                 'lokasi'     => $request->lokasi,
                 'created_by' => Auth::id(),
+            ]);
+
+            $area->update([
+                'kode_area' => 'AREA-' . $area->id,
             ]);
 
             foreach ($request->tipe_kendaraan as $i => $idTipe) {
@@ -161,24 +165,32 @@ class AreaParkirController extends Controller
         return redirect()->route('area-parkir.index');
     }
 
-    public function destroy(AreaParkir $area)
+    public function destroy(AreaParkir $area_parkir)
     {
-        DB::transaction(function () use ($area) {
+        try {
+            DB::transaction(function () use ($area_parkir) {
 
-            $existingDetails = AreaParkirDetail::where('area_parkir_id', $area->id)->get();
-
-            foreach ($existingDetails as $detail) {
-                if ($detail->terisi > 0) {
-                    abort(403, 'Tidak boleh menghapus tipe kendaraan yang sedang terisi');
+                foreach ($area_parkir->details as $detail) {
+                    if ($detail->terisi > 0) {
+                        throw new \Exception(
+                            'Area parkir tidak bisa dihapus karena masih ada kendaraan terparkir'
+                        );
+                    }
                 }
-            }
 
-            AreaParkirDetail::where('area_parkir_id', $area->id)->delete();
+                $area_parkir->details()->delete();
+                $area_parkir->update([
+                    'deleted_by' => Auth::id()
+                ]);
+                $area_parkir->delete();
+            });
 
-            $area->update(['deleted_by' => Auth::id()]);
-            $area->delete();
-        });
+            return redirect()
+                ->route('area-parkir.index')
+                ->with('success', 'Area parkir berhasil dihapus');
 
-        return redirect()->route('area-parkir.index');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 }

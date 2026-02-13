@@ -38,6 +38,7 @@
                     <thead>
                         <tr class="text-left">
                             <th>No</th>
+                            <th>Kode Area</th>
                             <th>Nama Area</th>
                             <th>Lokasi</th>
                             <th>Kapasitas</th>
@@ -60,11 +61,12 @@
             autoWidth: false,
             columnDefs: [
                 { targets: 0, width: '50px', className: 'text-center' },
-                { targets: 3, type:'string'},
-                { targets: 4, width: '120px', className: 'text-center' },
+                { targets: 4, type:'string'},
+                { targets: 5, width: '120px', className: 'text-center' },
             ],
             columns: [
                 { data: 'DT_RowIndex', orderable:false, searchable:false },
+                { data: 'kode_area', name: 'kode_area' },
                 { data: 'nama_area', name: 'nama_area' },
                 { data: 'lokasi', name: 'lokasi' },
                 { data: 'kapasitas', name: 'kapasitas' },

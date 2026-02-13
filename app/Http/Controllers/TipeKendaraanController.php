@@ -12,7 +12,7 @@ class TipeKendaraanController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = TipeKendaraan::select('id', 'tipe_kendaraan', 'kapasitas');
+            $data = TipeKendaraan::select('id', 'tipe_kendaraan');
 
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -26,7 +26,7 @@ class TipeKendaraanController extends Controller
                             <form action="'.route('tipe-kendaraan.destroy',$row->id).'" method="POST">
                                 '.csrf_field().method_field('DELETE').'
                                 <button class="text-red-600 hover:underline text-sm"
-                                        onclick="return confirm(\'Yakin?\')">
+                                        onclick="return confirm(\'YYakin ingin menghapus data ini??\')">
                                     Hapus
                                 </button>
                             </form>
@@ -49,12 +49,11 @@ class TipeKendaraanController extends Controller
     {
         $request->validate([
             'tipe_kendaraan' => 'required',
-            'kapasitas' => 'required',
         ]);
 
         TipeKendaraan::create([
             'tipe_kendaraan' => $request->tipe_kendaraan,
-            'kapasitas' => $request->kapasitas,
+            'kapasitas' => 1,
             'created_by' => Auth::user()->name ?? 'system',
         ]);
 
@@ -70,7 +69,7 @@ class TipeKendaraanController extends Controller
     {
         $tipeKendaraan->update([
             'tipe_kendaraan' => $request->tipe_kendaraan,
-            'kapasitas' => $request->kapasitas,
+            'kapasitas' => 1,
             'updated_by' => Auth::user()->name ?? 'system',
         ]);
 

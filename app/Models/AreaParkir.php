@@ -12,6 +12,7 @@ class AreaParkir extends Model
     protected $table = 'tb_area_parkir';
 
     protected $fillable = [
+        'kode_area',
         'nama_area',
         'lokasi',
         'kapasitas',
@@ -22,7 +23,7 @@ class AreaParkir extends Model
 
     public function details()
     {
-        return $this->hasMany(AreaParkirDetail::class, 'area_parkir_id');
+        return $this->hasMany(AreaParkirDetail::class, 'area_parkir_id')->whereNull('deleted_at');
     }
 
     public function tipeKendaraan()

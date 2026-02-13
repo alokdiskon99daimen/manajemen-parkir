@@ -19,16 +19,13 @@
                     <input
                         type="text"
                         name="plat_nomor"
-                        id="plat_nomor"
-                        class="w-full border rounded px-3 py-2"
+                        class="w-full border rounded px-3 py-2 plat-masuk plat-nomor"
                         placeholder="B 1234 XYZ"
                         autocomplete="off"
                     >
 
                     {{-- DROPDOWN HASIL --}}
-                    <div id="platDropdown"
-                        class="absolute z-10 w-full border bg-white rounded shadow-md hidden max-h-56 overflow-y-auto">
-                    </div>
+                    <div class="plat-dropdown absolute z-10 w-full border bg-white rounded shadow-md hidden max-h-56 overflow-y-auto"></div>
                 </div>
 
                 {{-- DATA KENDARAAN --}}
@@ -50,15 +47,16 @@
                                 </option>
                             @endforeach
                         </select>
+                        <input type="hidden" name="id_tipe_kendaraan" id="id_tipe_kendaraan_hidden">
                     </div>
 
                     <div>
-                        <label class="text-sm">Warna</label>
+                        <label class="text-sm">Warna (opsional)</label>
                         <input type="text" name="warna" id="warna" class="w-full border rounded px-2 py-1">
                     </div>
 
                     <div class="col-span-2">
-                        <label class="text-sm">Pemilik</label>
+                        <label class="text-sm">Pemilik (opsional)</label>
                         <input type="text" name="pemilik" id="pemilik" class="w-full border rounded px-2 py-1">
                     </div>
 
@@ -76,7 +74,7 @@
                     </div>
                 </div>
 
-                <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded">
+                <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded" onclick="return confirm('Apakah Anda yakin ingin mencatat kendaraan ini sebagai MASUK parkir?')">
                     Generate Tiket Masuk
                 </button>
             </form>
@@ -107,73 +105,177 @@
             <form method="POST" action="{{ route('transaksi.keluar') }}">
                 @csrf
 
-                <label class="block text-sm font-medium">Plat Nomor</label>
-                <input
-                    type="text"
-                    name="plat_nomor"
-                    class="w-full border rounded px-3 py-2"
-                    placeholder="B 1234 XYZ"
-                    required
-                >
+                <div class="mb-3">
+                    <button type="button"
+                        id="openScanner"
+                        class="bg-blue-600 text-white px-3 py-2 rounded text-sm">
+                        📷 Scan QR
+                    </button>
+                </div>
 
-                <button class="mt-4 bg-green-600 text-white px-4 py-2 rounded">
+                <div id="reader" class="hidden mt-3"></div>
+
+                <div class="mb-3 relative">
+                    <label class="block text-sm font-medium">Plat Nomor</label>
+                    <input
+                        type="text"
+                        name="plat_nomor"
+                        class="w-full border rounded px-3 py-2 plat-nomor plat-keluar"
+                        placeholder="B 1234 XYZ"
+                        autocomplete="off"
+                        required
+                    >
+
+                    <div class="plat-dropdown absolute z-10 w-full border bg-white rounded shadow-md hidden max-h-56 overflow-y-auto"></div>
+                </div>
+
+                <div class="mb-3 relative">
+                    <label class="text-sm">Metode Pembayaran</label>
+
+                    <select
+                        name="id_metode_pembayaran"
+                        id="id_metode_pembayaran"
+                        class="w-full border rounded px-2 py-1"
+                        required
+                    >
+                        <option value="">-- Pilih Metode Pembayaran --</option>
+
+                        @foreach ($metodePembayaran as $metode)
+                            <option value="{{ $metode->id }}">
+                                {{ $metode->metode_pembayaran }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="mb-3 relative">
+                    <label class="text-sm">Diskon</label>
+
+                    <select
+                        name="diskon"
+                        id="diskon"
+                        class="w-full border rounded px-2 py-1"
+                    >
+
+                        @foreach ($diskon as $d)
+                            <option value="{{ $d->id }}" {{ $loop->first ? 'selected' : '' }}>
+                                {{ $d->nama_diskon }} ({{ $d->diskon }}%)
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <button class="mt-4 bg-green-600 text-white px-4 py-2 rounded" onclick="return confirm('Apakah Anda yakin ingin mencatat kendaraan ini sebagai KELUAR parkir?')">
                     Generate Tiket Keluar
                 </button>
             </form>
         </div>
 
     </div>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+    <script>
+    document.getElementById("openScanner").addEventListener("click", function () {
+
+        const reader = document.getElementById("reader");
+        reader.classList.remove("hidden");
+
+        const html5QrCode = new Html5Qrcode("reader");
+
+        Html5Qrcode.getCameras().then(devices => {
+            if (devices && devices.length) {
+                html5QrCode.start(
+                    devices[0].id,
+                    {
+                        fps: 10,
+                        qrbox: 250
+                    },
+                    qrCodeMessage => {
+
+                        try {
+                            let data = JSON.parse(qrCodeMessage);
+
+                        if (data.plat_nomor) {
+                            document.querySelector(".plat-keluar").value = data.plat_nomor;
+                        }
+
+                        } catch (e) {
+                            document.querySelector(".plat-keluar").value = qrCodeMessage;
+                        }
+
+                        html5QrCode.stop();
+                        reader.classList.add("hidden");
+                    },
+                    errorMessage => {
+                    }
+                );
+            }
+        });
+    });
+    </script>
 </x-app-layout>
 
 <script>
 const platInput = document.getElementById('plat_nomor');
 const dropdown = document.getElementById('platDropdown');
 
-platInput.addEventListener('keyup', async function () {
-    const q = this.value;
+document.querySelectorAll('.plat-nomor').forEach(input => {
 
-    if (q.length < 2) {
-        dropdown.classList.add('hidden');
-        return;
-    }
+    const dropdown = input.parentElement.querySelector('.plat-dropdown');
 
-    const res = await fetch(`/kendaraan/search?q=${q}`);
-    const data = await res.json();
+    input.addEventListener('keyup', async function () {
+        const q = this.value.trim();
 
-    dropdown.innerHTML = '';
-
-    if (data.length === 0) {
-        dropdown.classList.add('hidden');
-        return;
-    }
-
-    data.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'px-3 py-2 hover:bg-gray-100 cursor-pointer';
-        div.innerText = item.plat_nomor;
-
-        div.onclick = () => {
-            platInput.value = item.plat_nomor;
-            tipeSelect.value = String(item.id_tipe_kendaraan);
-            loadAreaByTipe(String(item.id_tipe_kendaraan));           
-            document.getElementById('warna').value = item.warna;
-            document.getElementById('pemilik').value = item.pemilik;
+        if (q.length < 2) {
             dropdown.classList.add('hidden');
-        };
+            lockVehicleFields(false);
+            return;
+        }
 
-        dropdown.appendChild(div);
+        const res = await fetch(`/kendaraan/search?q=${q}`);
+        const data = await res.json();
+
+        dropdown.innerHTML = '';
+
+        if (data.length === 0) {
+            dropdown.classList.add('hidden');
+            lockVehicleFields(false);
+            return;
+        }
+
+        data.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'px-3 py-2 hover:bg-gray-100 cursor-pointer';
+            div.textContent = item.plat_nomor;
+
+            div.onclick = () => {
+                input.value = item.plat_nomor;
+
+                // 🎯 KHUSUS TIKET MASUK
+                if (input.classList.contains('plat-masuk')) {
+                    document.getElementById('id_tipe_kendaraan').value = item.id_tipe_kendaraan;
+                    document.getElementById('id_tipe_kendaraan_hidden').value = item.id_tipe_kendaraan;
+                    document.getElementById('warna').value = item.warna ?? '';
+                    document.getElementById('pemilik').value = item.pemilik ?? '';
+                    loadAreaByTipe(item.id_tipe_kendaraan);
+                    lockVehicleFields(true);
+                }
+
+                dropdown.classList.add('hidden');
+            };
+
+            dropdown.appendChild(div);
+        });
+
+        dropdown.classList.remove('hidden');
     });
 
-    dropdown.classList.remove('hidden');
-});
+    document.addEventListener('click', function (e) {
+        if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
 
-document.addEventListener('click', function (e) {
-    if (
-        !platInput.contains(e.target) &&
-        !dropdown.contains(e.target)
-    ) {
-        dropdown.classList.add('hidden');
-    }
 });
 
 
@@ -217,4 +319,89 @@ async function loadAreaByTipe(tipeId) {
 tipeSelect.addEventListener('change', function () {
     loadAreaByTipe(this.value);
 });
+
+
+// a
+document.querySelectorAll('.plat-nomor').forEach(input => {
+    input.addEventListener('input', function (e) {
+
+        let value = e.target.value.toUpperCase();
+
+        // hapus karakter selain huruf & angka
+        value = value.replace(/[^A-Z0-9]/g, '');
+
+        let hurufDepan = '';
+        let angka = '';
+        let hurufBelakang = '';
+
+        for (let char of value) {
+
+            // 🚫 karakter pertama WAJIB huruf
+            if (hurufDepan.length === 0 && !/[A-Z]/.test(char)) {
+                continue;
+            }
+
+            // isi huruf depan (max 2)
+            if (hurufDepan.length < 2 && /[A-Z]/.test(char) && angka.length === 0) {
+                hurufDepan += char;
+                continue;
+            }
+
+            // isi angka (max 4)
+            if (angka.length < 4 && /[0-9]/.test(char)) {
+                angka += char;
+                continue;
+            }
+
+            // isi huruf belakang (max 3)
+            if (hurufBelakang.length < 3 && /[A-Z]/.test(char) && angka.length > 0) {
+                hurufBelakang += char;
+            }
+        }
+
+        let result = hurufDepan;
+
+        if (angka.length > 0) {
+            result += ' ' + angka;
+        }
+
+        if (hurufBelakang.length > 0) {
+            result += ' ' + hurufBelakang;
+        }
+
+        e.target.value = result.trim();
+    });
+});
+
+function isPlatValid(value) {
+    // regex HURUF → ANGKA → HURUF (akhir opsional)
+    const regex = /^[A-Z]{1,2}\s[0-9]{1,4}\s[A-Z]{1,3}$/;
+    return regex.test(value.trim());
+}
+
+document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', function (e) {
+
+        const platInput = form.querySelector('.plat-nomor');
+        if (!platInput) return;
+
+        const value = platInput.value.trim();
+
+        if (!isPlatValid(value)) {
+            e.preventDefault();
+            alert(
+                'Format plat nomor tidak valid.\n\n' +
+                'Gunakan format:\n' +
+                'B 1234 XYZ\n' 
+            );
+            platInput.focus();
+        }
+    });
+});
+
+function lockVehicleFields(lock = true) {
+    document.getElementById('id_tipe_kendaraan').disabled = lock;
+    document.getElementById('warna').readOnly = lock;
+    document.getElementById('pemilik').readOnly = lock;
+}
 </script>

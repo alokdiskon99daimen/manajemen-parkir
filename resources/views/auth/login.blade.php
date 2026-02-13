@@ -5,21 +5,32 @@
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
+        <div class="flex flex-col items-center mb-6">
+            <div class="flex items-center justify-center h-16 w-16 bg-blue-600 rounded-lg">
+                <span class="text-white font-bold text-lg">MP</span>
+            </div>
+            <h1 class="mt-3 text-2xl font-semibold text-gray-800">Manajemen Parkir</h1>
+        </div>
+
         <!-- Email Address -->
-        <div>
+        <div class="mb-4">
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+            <x-text-input id="email" class="block mt-1 w-full border" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
         <!-- Password -->
-        <div class="mt-4">
+        <div x-data="{ show: false }" class="relative">
             <x-input-label for="password" :value="__('Password')" />
 
-            <x-text-input id="password" class="block mt-1 w-full"
+            <x-text-input id="password" class="block mt-1 w-full border"
                             type="password"
                             name="password"
+                            x-bind:type="show ? 'text' : 'password'"
                             required autocomplete="current-password" />
+
+            <button type="button"@click="show = !show" class="absolute right-3 top-6 text-gray-500 hover:text-gray-700">
+            <i class="fa-solid" :class="show ? 'fa-eye-slash' : 'fa-eye'"></i></button>
 
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
@@ -39,7 +50,7 @@
                 </a>
             @endif
 
-            <x-primary-button class="ms-3">
+            <x-primary-button class="ms-3 bg-blue-700">
                 {{ __('Log in') }}
             </x-primary-button>
         </div>

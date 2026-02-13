@@ -39,7 +39,6 @@
                         <tr class="text-left">
                             <th>No</th>
                             <th>Tipe Kendaraan</th>
-                            <th>Kapasitas</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -59,13 +58,11 @@
             autoWidth: false,
             columnDefs: [
                 { targets: 0, width: '50px', className: 'text-center' },
-                { targets: 2, type: 'string'},
-                { targets: 3, width: '120px', className: 'text-center' },
+                { targets: 2, width: '120px', className: 'text-center' },
             ],
             columns: [
                 { data: 'DT_RowIndex', orderable:false, searchable:false },
                 { data: 'tipe_kendaraan', name: 'tipe_kendaraan' },
-                { data: 'kapasitas', name: 'kapasitas' },
                 { data: 'aksi', orderable:false, searchable:false },
             ]
         });

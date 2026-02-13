@@ -7,7 +7,7 @@
 
     <div class="py-8">
         <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow">
-            <form method="POST" action="{{ route('area-parkir.update', $area->id) }}" class="space-y-4">
+            <form method="POST" action="{{ route('area-parkir.update', $area->id) }}" class="space-y-4" onsubmit="return confirm('Apakah anda yakin?')">
                 @csrf
                 @method('PUT')
 
@@ -39,7 +39,7 @@
                                 @endforeach
                             </select>
 
-                            <input name="kapasitas[]" type="number"
+                            <input name="kapasitas[]" type="number" onkeyup="if(this.value < 0) this.value = '';"
                                 value="{{ $detail->kapasitas }}"
                                 class="w-1/2 border px-3 py-2 rounded">
 
@@ -81,7 +81,7 @@ function addDetail(){
                 <option value="">-- Pilih Tipe --</option>
                 ${options}
             </select>
-            <input name="kapasitas[]" type="number" placeholder="Kapasitas"
+            <input name="kapasitas[]" type="number" placeholder="Kapasitas" onkeyup="if(this.value < 0) this.value = '';"
                    class="w-1/2 border px-3 py-2 rounded">
             <button type="button" onclick="removeRow(this)" class="text-red-600 text-sm">✕</button>
         </div>

@@ -43,6 +43,7 @@
                         <tr class="text-left">
                             <th>No</th>
                             <th>Tipe Kendaraan</th>
+                            <th>Durasi Mulai (Jam)</th>
                             <th>Tarif / Jam</th>
                             <th>Aksi</th>
                         </tr>
@@ -60,15 +61,17 @@
             serverSide: true,
             ajax: "{{ route('tarif.index') }}",
             order: [[1, 'asc']],
-            autoWidth: false, // 🔴 PENTING
+            autoWidth: false,
             columnDefs: [
-                { targets: 0, width: '50px', className: 'text-center' }, // No
-                { targets: 2, className: 'text-left' }, // Tarif / Jam
-                { targets: 3, width: '120px', className: 'text-center' }, // Aksi
+                { targets: 0, width: '50px', className: 'text-center' },
+                { targets: 2, className: 'text-left' },
+                { targets: 3, className: 'text-left' },
+                { targets: 4, width: '120px', className: 'text-center' },
             ],
             columns: [
                 { data: 'DT_RowIndex', orderable:false, searchable:false },
                 { data: 'tipe_kendaraan', name: 'tipe_kendaraan' },
+                { data: 'durasi_mulai', name: 'durasi_mulai' },
                 { data: 'tarif_per_jam', name: 'tarif_per_jam' },
                 { data: 'aksi', orderable:false, searchable:false },
             ]

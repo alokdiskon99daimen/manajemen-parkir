@@ -7,7 +7,7 @@
 
     <div class="py-8">
         <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow">
-            <form method="POST"
+            <form method="POST" onsubmit="return confirm('Apakah anda yakin?')"
                   action="{{ route('user.update', $user->id) }}"
                   class="space-y-4">
                 @csrf

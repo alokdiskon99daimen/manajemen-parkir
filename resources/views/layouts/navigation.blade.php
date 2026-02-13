@@ -6,82 +6,114 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                        <div class="flex items-center justify-center h-9 w-9 bg-blue-600 rounded-lg">
+                            <span class="text-white font-bold text-lg">MP</span>
+                        </div>
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+
                     {{-- Dashboard --}}
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
+                        Dashboard
                     </x-nav-link>
 
-                    {{-- MASTER DROPDOWN --}}
+                    {{-- ADMIN --}}
                     @role('admin')
-                    <x-dropdown align="left" width="56">
-                        <x-slot name="trigger">
-                            <button
-                                class="inline-flex items-center px-1 py-6 border-b-2 border-transparent
-                                    text-sm font-medium leading-5
-                                    text-gray-500 hover:text-gray-700 hover:border-gray-300
-                                    focus:outline-none transition"
-                            >
-                                <span>Master</span>
+                        {{-- Master --}}
+                        <x-dropdown align="left" width="56">
+                            <x-slot name="trigger">
+                                <button class="inline-flex items-center px-1 py-6 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 transition">
+                                    Master
+                                    <svg class="ml-1 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M5.23 7.21L10 12l4.77-4.79" clip-rule="evenodd"/>
+                                    </svg>
+                                </button>
+                            </x-slot>
 
-                                <svg class="ml-1 h-4 w-4 fill-current" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </button>
-                        </x-slot>
+                            <x-slot name="content">
+                                <x-dropdown-link :href="route('user.index')">User</x-dropdown-link>
+                                <x-dropdown-link :href="route('tarif.index')">Tarif</x-dropdown-link>
+                                <x-dropdown-link :href="route('area-parkir.index')">Area Parkir</x-dropdown-link>
+                                <x-dropdown-link :href="route('tipe-kendaraan.index')">Tipe Kendaraan</x-dropdown-link>
+                                <x-dropdown-link :href="route('data-kendaraan.index')">Data Kendaraan</x-dropdown-link>
+                                <x-dropdown-link :href="route('membership-tier.index')">Membership Tier</x-dropdown-link>
+                                <x-dropdown-link :href="route('membership.index')">Membership</x-dropdown-link>
+                                <x-dropdown-link :href="route('diskon.index')">Diskon</x-dropdown-link>
+                            </x-slot>
+                        </x-dropdown>
 
-                        <x-slot name="content">
-                            <x-dropdown-link :href="route('user.index')">User</x-dropdown-link>
-                            <x-dropdown-link :href="route('tarif.index')">Tarif</x-dropdown-link>
-                            <x-dropdown-link :href="route('area-parkir.index')">Area Parkir</x-dropdown-link>
-                            <x-dropdown-link :href="route('tipe-kendaraan.index')">Tipe Kendaraan</x-dropdown-link>
-                            <x-dropdown-link :href="route('data-kendaraan.index')">Data Kendaraan</x-dropdown-link>
-                            <x-dropdown-link :href="route('membership-tier.index')">Membership Tier</x-dropdown-link>
-                            <x-dropdown-link :href="route('membership.index')">Membership</x-dropdown-link>
-                        </x-slot>
-                    </x-dropdown>
+                        {{-- Log --}}
+                        <x-nav-link :href="route('log-aktivitas.index')" :active="request()->routeIs('log-aktivitas.index')">
+                            Log Aktivitas
+                        </x-nav-link>
+
+                        {{-- Transaksi --}}
+                        <x-dropdown align="left" width="48">
+                            <x-slot name="trigger">
+                                <button class="inline-flex items-center px-1 py-6 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 transition">
+                                    Transaksi
+                                    <svg class="ml-1 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M5.23 7.21L10 12l4.77-4.79"/>
+                                    </svg>
+                                </button>
+                            </x-slot>
+
+                            <x-slot name="content">
+                                <x-dropdown-link :href="route('transaksi.aktif')">Transaksi Aktif</x-dropdown-link>
+                                <x-dropdown-link :href="route('transaksi.riwayat')">Riwayat Transaksi</x-dropdown-link>
+                            </x-slot>
+                        </x-dropdown>
                     @endrole
 
+                    {{-- UMUM --}}
                     <x-nav-link :href="route('track-area-parkir')" :active="request()->routeIs('track-area-parkir')">
-                        {{ __('Track Area') }}
+                        Track Area
                     </x-nav-link>
 
-                    <x-dropdown align="left" width="56">
-                        <x-slot name="trigger">
-                            <button
-                                class="inline-flex items-center px-1 py-6 border-b-2 border-transparent
-                                    text-sm font-medium leading-5
-                                    text-gray-500 hover:text-gray-700 hover:border-gray-300
-                                    focus:outline-none transition"
-                            >
-                                <span>Transaksi</span>
+                    <x-nav-link :href="route('monitoring-area-parkir')" :active="request()->routeIs('monitoring-area-parkir')">
+                        Monitoring Area
+                    </x-nav-link>
 
-                                <svg class="ml-1 h-4 w-4 fill-current" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </button>
-                        </x-slot>
-
-                        <x-slot name="content">
-                            <x-dropdown-link :href="route('transaksi.index')">Transaksi</x-dropdown-link>
-                            <x-dropdown-link :href="route('transaksi.aktif')">Transaksi Aktif</x-dropdown-link>
-                            <x-dropdown-link :href="route('transaksi.riwayat')">Riwayat Transaksi</x-dropdown-link>
-                        </x-slot>
-                    </x-dropdown>
-
+                    {{-- PETUGAS --}}
                     @role('Petugas Parkir')
-                    <x-nav-link :href="route('transaksi.index')" :active="request()->routeIs('transaksi.index')">
-                        {{ __('Transaksi') }}
-                    </x-nav-link>
+                        <x-dropdown align="left" width="48">
+                            <x-slot name="trigger">
+                                <button class="inline-flex items-center px-1 py-6 text-sm font-medium text-gray-500 hover:text-gray-700 transition">
+                                    Transaksi
+                                    <svg class="ml-1 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M5.23 7.21L10 12l4.77-4.79"/>
+                                    </svg>
+                                </button>
+                            </x-slot>
+
+                            <x-slot name="content">
+                                <x-dropdown-link :href="route('transaksi.index')">Input Transaksi</x-dropdown-link>
+                                <x-dropdown-link :href="route('transaksi.aktif')">Transaksi Aktif</x-dropdown-link>
+                                <x-dropdown-link :href="route('transaksi.riwayat')">Riwayat</x-dropdown-link>
+                            </x-slot>
+                        </x-dropdown>
+                    @endrole
+
+                    {{-- OWNER --}}
+                    @role('Owner/Manajemen')
+                        <x-dropdown align="left" width="48">
+                            <x-slot name="trigger">
+                                <button class="inline-flex items-center px-1 py-6 text-sm font-medium text-gray-500 hover:text-gray-700 transition">
+                                    Laporan
+                                    <svg class="ml-1 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M5.23 7.21L10 12l4.77-4.79"/>
+                                    </svg>
+                                </button>
+                            </x-slot>
+
+                            <x-slot name="content">
+                                <x-dropdown-link :href="route('laporan.index')">Laporan</x-dropdown-link>
+                                <x-dropdown-link :href="route('laporan.analytics')">Analytics</x-dropdown-link>
+                            </x-slot>
+                        </x-dropdown>
                     @endrole
                 </div>
             </div>
@@ -139,6 +171,47 @@
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
         </div>
+
+        @role('admin')
+            <div class="px-4 pt-2 text-xs text-gray-400 uppercase">Master</div>
+            <x-responsive-nav-link :href="route('user.index')">User</x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('tarif.index')">Tarif</x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('area-parkir.index')">Area Parkir</x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('tipe-kendaraan.index')">Tipe Kendaraan</x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('membership.index')">Membership</x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('diskon.index')">Diskon</x-responsive-nav-link>
+
+            <div class="px-4 pt-2 text-xs text-gray-400 uppercase">Transaksi</div>
+            <x-responsive-nav-link :href="route('transaksi.aktif')">Aktif</x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('transaksi.riwayat')">Riwayat</x-responsive-nav-link>
+        @endrole
+
+        @role('Petugas Parkir')
+            <div class="px-4 pt-2 text-xs text-gray-400 uppercase">
+                Transaksi
+            </div>
+
+            <x-responsive-nav-link :href="route('transaksi.index')">
+                Input Transaksi
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('transaksi.aktif')">
+                Transaksi Aktif
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('transaksi.riwayat')">
+                Riwayat Transaksi
+            </x-responsive-nav-link>
+        @endrole
+
+        <x-responsive-nav-link :href="route('track-area-parkir')">Track Area</x-responsive-nav-link>
+        <x-responsive-nav-link :href="route('monitoring-area-parkir')">Monitoring</x-responsive-nav-link>
+
+        @role('Owner/Manajemen')
+            <div class="px-4 pt-2 text-xs text-gray-400 uppercase">Laporan</div>
+            <x-responsive-nav-link :href="route('laporan.index')">Laporan</x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('laporan.analytics')">Analytics</x-responsive-nav-link>
+        @endrole
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">
