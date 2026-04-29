@@ -1,88 +1,98 @@
 <?php
 
-namespace App\Http\Controllers\Laporan;
+namespace App\Http\Controllers\laporan;
 
 use App\Http\Controllers\Controller;
-use App\Services\Laporan\{
-    RevenueAnalyticsService,
-    PeakHourService,
-    MemberAnalyticsService,
-    VehicleAnalyticsService,
-    PaymentAnalyticsService,
-    OccupancyAnalyticsService
-};
-
+use Illuminate\Http\Request;
+use Carbon\Carbon;
+use App\Models\Transaksi;
+use Illuminate\Support\Facades\DB;
 class AnalyticsController extends Controller
 {
-    public function index(
-        RevenueAnalyticsService $revenue,
-        PeakHourService $peak,
-        MemberAnalyticsService $member,
-        VehicleAnalyticsService $vehicle,
-        PaymentAnalyticsService $payment,
-        OccupancyAnalyticsService $occupancy
-    ) {
-        return view('laporan.analytics', [
-            'revenueDaily'   => $revenue->perHari(),
-            'revenueByType'  => $revenue->byTipeKendaraan(),
-            'peakHour'       => $peak->traffic(),
-            'memberSummary'  => $member->summary(),
-            'vehicleDist'    => $vehicle->distribution(),
-            'paymentData'    => $payment->breakdown(),
-            'occupancyRate'  => $occupancy->rate(),
-        ]);
-    }
+    public function index(Request $request)
+    {
+        $start = $request->start_date
+            ? Carbon::parse($request->start_date)->startOfDay()
+            : now()->subDays(30)->startOfDay();
 
-    public function exportCsv(
-        RevenueAnalyticsService $revenue,
-        VehicleAnalyticsService $vehicle,
-        PaymentAnalyticsService $payment
-    ) {
-        $filename = 'laporan-analytics-' . now()->format('Ymd_His') . '.csv';
+        $end = $request->end_date
+            ? Carbon::parse($request->end_date)->endOfDay()
+            : now()->endOfDay();
 
-        $headers = [
-            "Content-Type" => "text/csv",
-            "Content-Disposition" => "attachment; filename=$filename",
-        ];
+        // Revenue Harian
+        $revenueHarian = Transaksi::select(
+                DB::raw('DATE(waktu_keluar) as tanggal'),
+                DB::raw('SUM(biaya_total) as total_revenue')
+            )
+            ->where('status', 'keluar')
+            ->whereBetween('waktu_keluar', [$start, $end])
+            ->groupBy('tanggal')
+            ->orderBy('tanggal')
+            ->get();
 
-        $callback = function () use ($revenue, $vehicle, $payment) {
-            $file = fopen('php://output', 'w');
+        // Peak Hour
+        $peakHour = Transaksi::select(
+                DB::raw('HOUR(waktu_keluar) as jam'),
+                DB::raw('COUNT(*) as total_transaksi')
+            )
+            ->where('status', 'keluar')
+            ->whereBetween('waktu_keluar', [$start, $end])
+            ->groupBy('jam')
+            ->orderByDesc('total_transaksi')
+            ->get();
 
-            // ================= Revenue =================
-            fputcsv($file, ['Revenue Harian']);
-            fputcsv($file, ['Tanggal', 'Total']);
+        // Payment Method
+        $paymentAnalysis = Transaksi::with('metodePembayaran')
+            ->where('status', 'keluar')
+            ->whereBetween('waktu_keluar', [$start, $end])
+            ->select(
+                'id_metode_pembayaran',
+                DB::raw('SUM(biaya_total) as total_revenue')
+            )
+            ->groupBy('id_metode_pembayaran')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'metode' => $item->metodePembayaran->metode_pembayaran ?? 'Unknown',
+                    'revenue' => $item->total_revenue,
+                ];
+            });
+        $totalRevenue = Transaksi::where('status','keluar')
+        ->whereBetween('waktu_keluar', [$start, $end])
+        ->sum('biaya_total');
 
-            foreach ($revenue->perHari() as $row) {
-                fputcsv($file, [$row->tanggal, $row->total]);
-            }
+        $totalTransaksi = Transaksi::where('status','keluar')
+            ->whereBetween('waktu_keluar', [$start, $end])
+            ->count();
 
-            fputcsv($file, []); // spacer
+        $avgTicket = $totalTransaksi > 0
+            ? $totalRevenue / $totalTransaksi
+            : 0;
 
-            // ================= Kendaraan =================
-            fputcsv($file, ['Distribusi Kendaraan']);
-            fputcsv($file, ['Tipe Kendaraan', 'Jumlah']);
-
-            foreach ($vehicle->distribution() as $row) {
-                fputcsv($file, [$row->label, $row->total]);
-            }
-
-            fputcsv($file, []);
-
-            // ================= Payment =================
-            fputcsv($file, ['Metode Pembayaran']);
-            fputcsv($file, ['Metode', 'Transaksi', 'Revenue']);
-
-            foreach ($payment->breakdown() as $row) {
-                fputcsv($file, [
-                    $row->label,
-                    $row->total_transaksi,
-                    $row->total_revenue
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        $memberRevenue = Transaksi::leftJoin(
+                'tb_membership_kendaraan as mk',
+                'tb_transaksi.id_data_kendaraan',
+                '=',
+                'mk.id_data_kendaraan'
+            )
+            ->select(
+                DB::raw('IF(mk.id_membership IS NULL, "Non Member", "Member") as tipe'),
+                DB::raw('SUM(tb_transaksi.biaya_total) as total')
+            )
+            ->where('tb_transaksi.status', 'keluar')
+            ->whereBetween('tb_transaksi.waktu_keluar', [$start, $end])
+            ->groupBy('tipe')
+            ->get();
+        return view('analytics.index', compact(
+            'revenueHarian',
+            'peakHour',
+            'paymentAnalysis',
+            'start',
+            'end',
+            'totalRevenue',
+            'totalTransaksi',
+            'avgTicket',
+            'memberRevenue'
+        ));
     }
 }

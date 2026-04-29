@@ -69,6 +69,7 @@ Route::middleware('auth')->group(function () {
 
             Route::post('/database/import', [DatabaseBackupController::class, 'import'])
                 ->name('database.import');
+
         });
     });
 
@@ -98,17 +99,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/harian', [LaporanController::class, 'harian'])->name('laporan.harian');
             Route::get('/range', [LaporanController::class, 'range'])->name('laporan.range');
             Route::get('/range/data', [LaporanController::class, 'rangeData'])->name('laporan.range.data');
-
-            Route::get('/analytics', [AnalyticsController::class, 'index'])->name('laporan.analytics');
-
-            Route::get('/analytics/revenue', [AnalyticsController::class, 'revenue']);
-            Route::get('/analytics/peak-hour', [AnalyticsController::class, 'peakHour']);
-            Route::get('/analytics/member', [AnalyticsController::class, 'member']);
-            Route::get('/analytics/vehicle', [AnalyticsController::class, 'vehicle']);
-            Route::get('/analytics/payment', [AnalyticsController::class, 'payment']);
-            Route::get('/analytics/occupancy', [AnalyticsController::class, 'occupancy']);
-
-            Route::get('/analytics/export/csv', [AnalyticsController::class, 'exportCsv'])->name('laporan.analytics.csv');
+            Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
         });
     });
 });

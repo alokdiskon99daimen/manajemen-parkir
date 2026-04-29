@@ -111,7 +111,7 @@
 
                             <x-slot name="content">
                                 <x-dropdown-link :href="route('laporan.index')">Laporan</x-dropdown-link>
-                                <x-dropdown-link :href="route('laporan.analytics')">Analytics</x-dropdown-link>
+                                <x-dropdown-link :href="route('analytics.index')">Analytics</x-dropdown-link>
                             </x-slot>
                         </x-dropdown>
                     @endrole
@@ -210,7 +210,7 @@
         @role('Owner/Manajemen')
             <div class="px-4 pt-2 text-xs text-gray-400 uppercase">Laporan</div>
             <x-responsive-nav-link :href="route('laporan.index')">Laporan</x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('laporan.analytics')">Analytics</x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('analytics.index')">Analytics</x-responsive-nav-link>
         @endrole
 
         <!-- Responsive Settings Options -->
